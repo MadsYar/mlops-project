@@ -17,4 +17,4 @@ COPY pyproject.toml pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 RUN pip install . --no-deps --no-cache-dir --verbose
 
-ENTRYPOINT ["python", "-u", "src/danish_to_english_llm/train.py"]
+ENTRYPOINT ["python", "-u", "src/danish_to_english_llm/evaluate.py"]
