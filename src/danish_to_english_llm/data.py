@@ -1,5 +1,3 @@
-
-
 # from pathlib import Path
 # from datasets import load_dataset
 # import typer
@@ -13,7 +11,7 @@
 #     def __init__(self, mode: str) -> None:
 #         """Initialize dataset."""
 #         self.dataset = None
-#         self.data_path = "data/raw" 
+#         self.data_path = "data/raw"
 #         if mode not in ["train", "val", "test"]:
 #             raise ValueError("Invalid mode. Please choose from 'train', 'val', or 'test'.")
 #         self.mode = mode
@@ -22,9 +20,9 @@
 #             self.download()
 #         if len(os.listdir("data/processed")) == 1:
 #             self.preprocess("data/processed")
-        
+
 #         self.dataset = torch.load(f"data/processed/{mode}.pt", weights_only=True)
-        
+
 
 #     def download(self) -> None:
 #         """Download dataset from HuggingFace."""
@@ -37,7 +35,7 @@
 #         """Preprocess the dataset by splitting on '###>'."""
 #         if self.dataset is None:
 #             self.dataset = load_dataset(str(self.data_path))
-        
+
 #         self.processed_data_train = []
 #         for item in self.dataset['train']:
 #             text = item['text']
@@ -64,7 +62,7 @@
 
 #         random.shuffle(self.processed_data_train)
 #         self.train_data, self.test_data = self.processed_data_train[:train_size], self.processed_data_train[train_size:]
-        
+
 #         # Save the splits
 #         torch.save(self.train_data, os.path.join(processed_data_path, "train.pt"))
 #         torch.save(self.test_data, os.path.join(processed_data_path, "test.pt"))
@@ -73,11 +71,11 @@
 #     def __len__(self) -> int:
 #         """Return length of dataset."""
 #         return len(self.dataset)
-    
+
 #     def __getitem__(self, idx: int) -> dict:
 #         """Get item from dataset."""
 #         return self.dataset[idx]
-    
+
 
 # def preprocess() -> None:
 #     """Preprocess the dataset."""
@@ -87,35 +85,6 @@
 
 # if __name__ == "__main__":
 #     typer.run(preprocess)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 from pathlib import Path
@@ -128,19 +97,14 @@ import random
 from typing import Dict, List, Tuple
 from transformers import T5TokenizerFast
 
+
 class TranslationDataset(Dataset):
     """Dataset for Danish to English translation using T5."""
 
-    def __init__(
-        self,
-        mode: str,
-        tokenizer: T5TokenizerFast,
-        max_length: int = 128,
-        data_dir: str = "data"
-    ) -> None:
+    def __init__(self, mode: str, tokenizer: T5TokenizerFast, max_length: int = 128, data_dir: str = "data") -> None:
         """
         Initialize dataset.
-        
+
         Args:
             mode: One of 'train', 'val', or 'test'
             tokenizer: T5 tokenizer for processing the text
@@ -149,12 +113,12 @@ class TranslationDataset(Dataset):
         """
         if mode not in ["train", "val", "test"]:
             raise ValueError("Invalid mode. Please choose from 'train', 'val', or 'test'.")
-        
+
         self.mode = mode
         self.tokenizer = tokenizer
         self.max_length = max_length
         self.data_dir = Path(data_dir)
-        
+
         # Create directories if they don't exist
         self.raw_dir = self.data_dir / "raw"
         self.processed_dir = self.data_dir / "processed"
@@ -168,11 +132,11 @@ class TranslationDataset(Dataset):
                 # Make sure we have raw data
                 self.dataset = self._download()
                 self._preprocess()
-            
+
             # Load the processed data
             self.data = torch.load(self.processed_dir / f"{mode}.pt", weights_only=True)
             print(f"Loaded {len(self.data)} examples for {mode} split")
-            
+
         except Exception as e:
             raise RuntimeError(f"Error initializing dataset: {str(e)}")
 
@@ -192,25 +156,27 @@ class TranslationDataset(Dataset):
         print("Preprocessing dataset...")
         try:
             # Process training data
-            train_data = self._process_split(self.dataset['train'])
-            val_data = self._process_split(self.dataset['validation'])
-            
+            train_data = self._process_split(self.dataset["train"])
+            val_data = self._process_split(self.dataset["validation"])
+
             print(f"Processed {len(train_data)} training examples")
             print(f"Processed {len(val_data)} validation examples")
-            
+
             # Create train/test split from training data
             random.shuffle(train_data)
             split_idx = int(0.95 * len(train_data))
             final_train_data = train_data[:split_idx]
             test_data = train_data[split_idx:]
-            
+
             # Save splits
             torch.save(final_train_data, self.processed_dir / "train.pt")
             torch.save(test_data, self.processed_dir / "test.pt")
             torch.save(val_data, self.processed_dir / "val.pt")
-            
-            print(f"Saved {len(final_train_data)} training, {len(test_data)} test, and {len(val_data)} validation examples")
-            
+
+            print(
+                f"Saved {len(final_train_data)} training, {len(test_data)} test, and {len(val_data)} validation examples"
+            )
+
         except Exception as e:
             raise RuntimeError(f"Error during preprocessing: {str(e)}")
 
@@ -218,13 +184,10 @@ class TranslationDataset(Dataset):
         """Process a single data split."""
         processed_data = []
         for item in split_data:
-            text = item['text']
-            if '###>' in text:
-                danish, english = text.split('###>')
-                processed_data.append({
-                    'danish': danish.strip(),
-                    'english': english.strip()
-                })
+            text = item["text"]
+            if "###>" in text:
+                danish, english = text.split("###>")
+                processed_data.append({"danish": danish.strip(), "english": english.strip()})
         return processed_data
 
     def _prepare_input(self, danish_text: str, english_text: str) -> Dict[str, torch.Tensor]:
@@ -233,70 +196,50 @@ class TranslationDataset(Dataset):
         source_encoding = self.tokenizer(
             f"translate Danish to English: {danish_text}",
             max_length=self.max_length,
-            padding='max_length',
+            padding="max_length",
             truncation=True,
-            return_tensors='pt'
+            return_tensors="pt",
         )
-        
+
         # Prepare target
         target_encoding = self.tokenizer(
-            english_text,
-            max_length=self.max_length,
-            padding='max_length',
-            truncation=True,
-            return_tensors='pt'
+            english_text, max_length=self.max_length, padding="max_length", truncation=True, return_tensors="pt"
         )
-        
+
         return {
-            'input_ids': source_encoding.input_ids.squeeze(),
-            'attention_mask': source_encoding.attention_mask.squeeze(),
-            'labels': target_encoding.input_ids.squeeze()
+            "input_ids": source_encoding.input_ids.squeeze(),
+            "attention_mask": source_encoding.attention_mask.squeeze(),
+            "labels": target_encoding.input_ids.squeeze(),
         }
 
     def __len__(self) -> int:
         """Return length of dataset."""
         return len(self.data)
-    
+
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         """Get item from dataset."""
         item = self.data[idx]
-        return self._prepare_input(item['danish'], item['english'])
+        return self._prepare_input(item["danish"], item["english"])
+
 
 def get_dataloaders(
-    tokenizer: T5TokenizerFast,
-    batch_size: int = 16,
-    max_length: int = 128,
-    num_workers: int = 4
+    tokenizer: T5TokenizerFast, batch_size: int = 16, max_length: int = 128, num_workers: int = 4
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """Create dataloaders for training."""
     train_dataset = TranslationDataset("train", tokenizer, max_length)
     val_dataset = TranslationDataset("val", tokenizer, max_length)
     test_dataset = TranslationDataset("test", tokenizer, max_length)
-    
+
     train_loader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
-        pin_memory=True
+        train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True
     )
-    
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True
-    )
-    
+
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+
     test_loader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True
+        test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True
     )
-    
+
     return train_loader, val_loader, test_loader
 
 
@@ -305,6 +248,6 @@ def preprocess(mode: str) -> None:
     dataset = TranslationDataset(mode, T5TokenizerFast.from_pretrained("google-t5/t5-small"))
     return dataset
 
+
 if __name__ == "__main__":
     typer.run(preprocess)
-    
