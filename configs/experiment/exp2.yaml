@@ -1,0 +1,22 @@
+training:
+  model_name: "google-t5/t5-small"
+  batch_size: 36
+  max_length: 256
+  learning_rate: 0.0001
+  max_epochs: 1
+  num_workers: 4
+
+callbacks:
+    monitor: "val_loss"
+    patience: 3
+    save_top_k: 1
+    mode: "min"
+    dirpath: "models"
+    filename: "best-checkpoint"
+
+trainer:
+  accelerator: "auto"
+  devices: 1
+  gradient_clip_val: 1.0
+  precision: "16-mixed"
+  accumulate_grad_batches: 2

@@ -2,9 +2,12 @@ docs/site/
 
 # test cache
 manual_test/
+wandb/
+outputs/
 
 # other local dev info
 .vscode/
+
 
 # Mac OS-specific storage files
 .DS_Store

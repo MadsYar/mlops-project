@@ -105,3 +105,5 @@ wandb==0.19.2
 wcwidth==0.2.13
 xxhash==3.5.0
 yarl==1.18.3
+hydra-core==1.3.2
+omegaconf==2.3.0
