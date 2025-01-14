@@ -30,12 +30,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          pip install coverage[toml]
           pip install -r requirements.txt
           pip list
 
 
       - name: Run tests & coverage
         run: |
+          pip install coverage[toml]
           coverage run -m pytest tests/
           coverage report -m
