@@ -37,5 +37,6 @@ jobs:
 
       - name: Run tests & coverage
         run: |
+          pip install coverage[toml]
           coverage run -m pytest tests/
           coverage report -m
