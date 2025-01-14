@@ -27,16 +27,27 @@ jobs:
           cache: 'pip'
           cache-dependency-path: setup.py
 
+      # Add dataset caching
+      - name: Cache dataset files
+        uses: actions/cache@v3
+        with:
+          path: |
+            data/raw
+            data/processed
+            ~/.cache/huggingface  # Cache HuggingFace datasets
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-dataset-v1
+          restore-keys: |
+            ${{ runner.os }}-python-${{ matrix.python-version }}-dataset-
+            ${{ runner.os }}-python-dataset-
+
       - name: Install dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          pip install coverage[toml]
           pip install -r requirements.txt
+          pip install coverage[toml]
           pip list
-
 
       - name: Run tests & coverage
         run: |
-          pip install coverage[toml]
           coverage run -m pytest tests/
           coverage report -m
