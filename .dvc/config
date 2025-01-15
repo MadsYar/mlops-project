@@ -1,4 +1,2 @@
-[core]
-    remote = storage
 ['remote "storage"']
-    url = gdrive://1rVLNOfBBeIzlioI7G37gvIuU9CRwPLTA
+    url = gs://group26_mlops_data_bucket
