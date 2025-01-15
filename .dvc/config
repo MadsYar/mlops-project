@@ -1,2 +1,4 @@
+[core]
+    remote = storage
 ['remote "storage"']
     url = gs://group26_mlops_data_bucket
