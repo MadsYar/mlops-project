@@ -43,9 +43,9 @@ class TranslationDataset(Dataset):
                 return
 
             # If no processed data, check raw data
-            raw_files = list(self.raw_dir.glob('*'))
-            only_gitkeep = len(raw_files) == 1 and raw_files[0].name == '.gitkeep'
-            
+            raw_files = list(self.raw_dir.glob("*"))
+            only_gitkeep = len(raw_files) == 1 and raw_files[0].name == ".gitkeep"
+
             # Download if necessary
             if only_gitkeep:
                 print("Raw directory empty. Downloading dataset...")
@@ -57,7 +57,7 @@ class TranslationDataset(Dataset):
             # Preprocess
             print("Starting preprocessing...")
             self._preprocess()
-            
+
             # Load the processed data after preprocessing
             print(f"Loading processed data for {mode} split...")
             loaded_data = torch.load(self.processed_dir / f"{mode}.pt", weights_only=True)

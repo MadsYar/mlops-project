@@ -26,27 +26,26 @@ def train(config) -> None:
 
     # Initialize model
     model = T5LightningModel(
-        pretrained_model=config.experiment.training.model_name, 
-        learning_rate=config.experiment.training.learning_rate, 
-        max_length=config.experiment.training.max_length
+        pretrained_model=config.experiment.training.model_name,
+        learning_rate=config.experiment.training.learning_rate,
+        max_length=config.experiment.training.max_length,
     )
 
     # Setup callbacks
     callbacks = [
         EarlyStopping(
-            monitor=config.experiment.callbacks.monitor, 
-            patience=config.experiment.callbacks.patience, 
-            verbose=True, 
-            mode=config.experiment.callbacks.mode
+            monitor=config.experiment.callbacks.monitor,
+            patience=config.experiment.callbacks.patience,
+            verbose=True,
+            mode=config.experiment.callbacks.mode,
         ),
-        
         ModelCheckpoint(
-            dirpath=config.experiment.callbacks.dirpath, 
-            monitor=config.experiment.callbacks.monitor, 
-            mode=config.experiment.callbacks.mode, 
-            filename=config.experiment.callbacks.filename, 
-            save_top_k=config.experiment.callbacks.save_top_k, 
-            verbose=True
+            dirpath=config.experiment.callbacks.dirpath,
+            monitor=config.experiment.callbacks.monitor,
+            mode=config.experiment.callbacks.mode,
+            filename=config.experiment.callbacks.filename,
+            save_top_k=config.experiment.callbacks.save_top_k,
+            verbose=True,
         ),
     ]
 
