@@ -180,3 +180,6 @@ cython_debug/
 #.idea/
 
 data/
+/data
+
+cacert.pem
