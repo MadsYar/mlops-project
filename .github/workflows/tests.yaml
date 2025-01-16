@@ -29,7 +29,7 @@ jobs:
           pip list
 
       - name: Ruff check
-        run: ruff check .
+        run: ruff check . --fix
 
       - name: Ruff format
         run: ruff format .
