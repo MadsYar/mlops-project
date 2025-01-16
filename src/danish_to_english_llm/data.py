@@ -11,10 +11,35 @@ from transformers import T5TokenizerFast
 
 
 class TranslationDataset(Dataset):
-    """Dataset for Danish to English translation using T5."""
+    """
+    This class handles the downloading, loading and preprocessing of Danish and English
+    translations of short sentences for training a T5 model.
+
+        Attributes:
+            mode (str): The dataset split using ('train', 'val', or 'test').
+            tokenizer (T5TokenizerFast): T5 tokenizer for processing text.
+            max_length (int): Maximum sequence length for tokenization.
+            data_dir (Path): Root directory for storing dataset files.
+            raw_dir (Path): Directory for raw downloaded data.
+            processed_dir (Path): Directory for processed and cached data.
+            data (List[Dict[str, str]]): Processed translation pairs.
+    """
 
     def __init__(self, mode: str, tokenizer: T5TokenizerFast, max_length: int = 128, data_dir: str = "data") -> None:
-        """Initialize dataset."""
+        """
+        Initialize the dataset.
+
+            Args:
+                mode: Dataset into three modes ('train', 'val', or 'test').
+                tokenizer: T5 tokenizer for processing text.
+                max_length: Maximum length for tokenization (default: 128).
+                data_dir: Root directory for storing dataset files.
+
+            Raises:
+                ValueError: If mode is not one of 'train', 'val', or 'test'.
+                RuntimeError: If dataset initialization fails.
+        """
+
         if mode not in ["train", "val", "test"]:
             raise ValueError("Invalid mode. Please choose from 'train', 'val', or 'test'.")
 
@@ -68,7 +93,16 @@ class TranslationDataset(Dataset):
             raise RuntimeError(f"Error initializing dataset: {str(e)}")
 
     def _download(self):
-        """Download dataset from HuggingFace."""
+        """
+        Downloads the dataset from HuggingFace.
+
+            Returns:
+                Dataset: The downloaded HuggingFace dataset.
+
+            Raises:
+                RuntimeError: If dataset download fails.
+        """
+
         print("Downloading dataset from HuggingFace...")
         try:
             dataset = load_dataset("kaitchup/opus-Danish-to-English")
@@ -79,7 +113,14 @@ class TranslationDataset(Dataset):
             raise RuntimeError(f"Failed to download dataset: {str(e)}")
 
     def _preprocess(self) -> None:
-        """Preprocess the dataset and create train/val/test splits."""
+        """
+        Preprocess the dataset and create train/val/test splits.
+
+            Raises:
+                ValueError: If self.dataset is None
+                RuntimeError: If preprocessing fails
+        """
+
         print("Preprocessing dataset...")
 
         if self.dataset is None:
@@ -112,7 +153,16 @@ class TranslationDataset(Dataset):
             raise RuntimeError(f"Error during preprocessing: {str(e)}")
 
     def _process_split(self, split_data) -> List[Dict[str, str]]:
-        """Process a single data split."""
+        """
+        Process a single data split.
+
+            Args:
+                split_data: Raw dataset split containing text pairs.
+
+            Returns:
+                List[Dict[str, str]]: List of dictionaries containing Danish-English pairs.
+        """
+
         processed_data = []
         for item in split_data:
             text = item["text"]
@@ -122,7 +172,18 @@ class TranslationDataset(Dataset):
         return processed_data
 
     def _prepare_input(self, danish_text: str, english_text: str) -> Dict[str, torch.Tensor]:
-        """Tokenize and prepare input for the model."""
+        """
+        Tokenize and prepare input for the model.
+
+            Args:
+                danish_text: Source text in Danish.
+                english_text: Target text in English.
+
+            Returns:
+                Dict[str, torch.Tensor]: Dictionary containing tokenized input_ids,
+                    attention_mask, and labels.
+        """
+
         # Prepare input
         source_encoding = self.tokenizer(
             f"translate Danish to English: {danish_text}",
@@ -145,10 +206,20 @@ class TranslationDataset(Dataset):
 
     def __len__(self) -> int:
         """Return length of dataset."""
+
         return len(self.data)
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
-        """Get item from dataset."""
+        """Get item from dataset.
+
+        Args:
+            idx: Index of the desired example.
+
+        Returns:
+            Dict[str, torch.Tensor]: Dictionary containing tokenized input_ids,
+                attention_mask, and labels.
+        """
+
         item = self.data[idx]
         return self._prepare_input(item["danish"], item["english"])
 
@@ -156,7 +227,20 @@ class TranslationDataset(Dataset):
 def get_dataloaders(
     tokenizer: T5TokenizerFast, batch_size: int = 16, max_length: int = 128, num_workers: int = 4
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
-    """Create dataloaders for training."""
+    """
+    Create DataLoaders for training, validation and testing.
+
+        Args:
+            tokenizer: T5 tokenizer for processing text.
+            batch_size: Batch size for training (default: 16).
+            max_length: Maximum sequence length (default: 128).
+            num_workers: Number of worker processes for data loading (default: 4).
+
+        Returns:
+            Tuple[DataLoader, DataLoader, DataLoader]: Training, validation, and test
+                data loaders.
+    """
+
     train_dataset = TranslationDataset("train", tokenizer, max_length)
     val_dataset = TranslationDataset("val", tokenizer, max_length)
     test_dataset = TranslationDataset("test", tokenizer, max_length)
@@ -175,7 +259,16 @@ def get_dataloaders(
 
 
 def preprocess(mode: str) -> TranslationDataset:
-    """Preprocess the dataset."""
+    """
+    Preprocess the dataset for a given mode.
+
+        Args:
+            mode: Dataset split to preprocess ('train', 'val', or 'test').
+
+        Returns:
+            TranslationDataset: Preprocessed dataset for the specified mode.
+    """
+
     dataset = TranslationDataset(mode, T5TokenizerFast.from_pretrained("google-t5/t5-small"))
     return dataset
 

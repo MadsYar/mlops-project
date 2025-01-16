@@ -14,7 +14,22 @@ from danish_to_english_llm.model import T5LightningModel
 
 @hydra.main(version_base=None, config_path="../../configs", config_name="config.yaml")
 def train(config) -> None:
-    """Train the translation model."""
+    """
+    Trains the translation model for Danish to English translation.
+
+    What this training pipeline does:
+        - Loading data
+        - Initializing model
+        - Training configuration
+        - Wandb logging
+        - Training the model
+        - Saving the model
+        - Plotting training statistics
+
+    Args:
+        config: Hydra configuration object.
+    """
+
     # Initialize tokenizer and get dataloaders
     print(f"configuration: \n {OmegaConf.to_yaml(config)}")
     train_loader, val_loader, _ = get_dataloaders(
