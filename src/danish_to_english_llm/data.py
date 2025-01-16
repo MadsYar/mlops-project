@@ -22,6 +22,9 @@ class TranslationDataset(Dataset):
         self.tokenizer = tokenizer
         self.max_length = max_length
         self.data_dir = Path(data_dir)
+
+        self.data: List[Dict[str, str]] = []
+
         self.dataset = None
 
         # Create directories if they don't exist
@@ -34,7 +37,8 @@ class TranslationDataset(Dataset):
             # First check if processed data exists
             if any(self.processed_dir.glob("*.pt")):
                 print(f"Loading processed data for {mode} split...")
-                self.data = torch.load(self.processed_dir / f"{mode}.pt", weights_only=True)
+                loaded_data = torch.load(self.processed_dir / f"{mode}.pt", weights_only=True)
+                self.data = loaded_data
                 print(f"Loaded {len(self.data)} examples for {mode} split")
                 return
 
@@ -56,7 +60,8 @@ class TranslationDataset(Dataset):
             
             # Load the processed data after preprocessing
             print(f"Loading processed data for {mode} split...")
-            self.data = torch.load(self.processed_dir / f"{mode}.pt", weights_only=True)
+            loaded_data = torch.load(self.processed_dir / f"{mode}.pt", weights_only=True)
+            self.data = loaded_data
             print(f"Loaded {len(self.data)} examples for {mode} split")
 
         except Exception as e:
@@ -76,6 +81,10 @@ class TranslationDataset(Dataset):
     def _preprocess(self) -> None:
         """Preprocess the dataset and create train/val/test splits."""
         print("Preprocessing dataset...")
+
+        if self.dataset is None:
+            raise ValueError("No dataset loaded. self.dataset is None.")
+
         try:
             # Process training data
             train_data = self._process_split(self.dataset["train"])
@@ -165,7 +174,7 @@ def get_dataloaders(
     return train_loader, val_loader, test_loader
 
 
-def preprocess(mode: str) -> None:
+def preprocess(mode: str) -> TranslationDataset:
     """Preprocess the dataset."""
     dataset = TranslationDataset(mode, T5TokenizerFast.from_pretrained("google-t5/t5-small"))
     return dataset

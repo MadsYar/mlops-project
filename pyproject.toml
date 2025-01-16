@@ -49,3 +49,11 @@ select = ["I"]
 
 [tool.coverage.run]
 omit = ["tests/*"]
+
+[[tool.mypy.overrides]]
+module = "transformers.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "datasets.*"
+ignore_missing_imports = true

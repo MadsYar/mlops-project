@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import pytorch_lightning as pl
 import torch
@@ -23,8 +23,8 @@ class T5LightningModel(pl.LightningModule):
         self.tokenizer = T5TokenizerFast.from_pretrained(pretrained_model)
 
         # Initialize metrics
-        self.train_losses = []
-        self.val_losses = []
+        self.train_losses: List[float] = []
+        self.val_losses: List[float] = []
 
         # Save hyperparameters
         self.save_hyperparameters()
