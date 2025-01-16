@@ -10,8 +10,6 @@ repos:
     -   id: check-added-large-files
     -   id: check-toml
     -   id: detect-private-key
-
-repos:
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.7
     hooks:
