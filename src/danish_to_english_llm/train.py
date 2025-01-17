@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pytorch_lightning as pl
 import torch
 import typer
+from loguru import logger
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
@@ -11,12 +12,35 @@ from transformers import T5TokenizerFast
 from danish_to_english_llm.data import get_dataloaders
 from danish_to_english_llm.model import T5LightningModel
 
+logger.add(
+    "logs/data.log",
+    rotation="100 MB",
+    level="INFO",
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} {level} [{file.name}:{line}] {message}",
+)
+
 
 @hydra.main(version_base=None, config_path="../../configs", config_name="config.yaml")
 def train(config) -> None:
-    """Train the translation model."""
+    """
+    Trains the translation model for Danish to English translation.
+
+    What this training pipeline does:
+        - Loading data
+        - Initializing model
+        - Training configuration
+        - Wandb logging
+        - Training the model
+        - Saving the model
+        - Plotting training statistics
+
+    Args:
+        config: Hydra configuration object.
+    """
+
     # Initialize tokenizer and get dataloaders
-    print(f"configuration: \n {OmegaConf.to_yaml(config)}")
+    logger.info("Starting training")
+    logger.info(f"Configuration: \n {OmegaConf.to_yaml(config)}")
     train_loader, val_loader, _ = get_dataloaders(
         tokenizer=T5TokenizerFast.from_pretrained(config.experiment.training.model_name),
         batch_size=config.experiment.training.batch_size,
@@ -25,13 +49,16 @@ def train(config) -> None:
     )
 
     # Initialize model
+    logger.info("Loading model")
     model = T5LightningModel(
         pretrained_model=config.experiment.training.model_name,
         learning_rate=config.experiment.training.learning_rate,
         max_length=config.experiment.training.max_length,
     )
+    logger.success("Model loaded successfully")
 
     # Setup callbacks
+    logger.info("Setting up callbacks")
     callbacks = [
         EarlyStopping(
             monitor=config.experiment.callbacks.monitor,
@@ -48,11 +75,15 @@ def train(config) -> None:
             verbose=True,
         ),
     ]
+    logger.success("Callback are set up successfully")
 
     # Initialize wandb logger
+    logger.info("Initializing wandb logger")
     wandb_logger = WandbLogger(project="t5-training", name="t5-small")
+    logger.success("Wandb logger initialized successfully")
 
     # Setup trainer
+    logger.info("Setting up trainer")
     trainer = pl.Trainer(
         max_epochs=config.experiment.training.max_epochs,
         callbacks=callbacks,
@@ -64,14 +95,19 @@ def train(config) -> None:
         precision=config.experiment.trainer.precision,
         accumulate_grad_batches=config.experiment.trainer.accumulate_grad_batches,
     )
+    logger.success("Trainer is set up successfully")
 
     # Train model
+    logger.info("Start training the model")
     trainer.fit(model, train_loader, val_loader)
+    logger.success("Training finished")
 
     # Save model
     torch.save(model.state_dict(), "models/final_model.pth")  # TODO: Find a better naming scheme?
+    logger.success("Model saved")
 
     # Get metrics and plot
+    logger.info("Plotting training statistics")
     metrics = model.get_metrics()
 
     # Plot training statistics
@@ -92,7 +128,8 @@ def train(config) -> None:
     plt.tight_layout()
     fig.savefig("reports/figures/training_statistics.png")
     plt.close()
+    logger.success("Training script is all done")
 
 
 if __name__ == "__main__":
-    train()
+    typer.run(train)
