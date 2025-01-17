@@ -79,5 +79,5 @@ jobs:
 
       - name: Run tests & coverage
         run: |
-          coverage run -m pytest tests/
+          coverage run --source=danish_to_english_llm -m pytest tests/
           coverage report -m
