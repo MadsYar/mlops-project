@@ -194,5 +194,6 @@ if __name__ == "__main__":
     logger.info(f"Number of parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
     logger.info("\nTesting translation: Hej, hvordan har du det?")
     translation = model.translate("Hej, hvordan har du det?")
-    logger.success(f"Translation: {model.translate("Hej, hvordan har du det?")}")
+    output = model.translate("Hej, hvordan har du det?")
+    logger.success(f"Translation: {output}")
     model.train()
