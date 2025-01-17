@@ -1,0 +1,24 @@
+steps:
+- uses: iterative/setup-dvc@v1
+- name: Get data
+  run: dvc pull
+  env:
+    GDRIVE_CREDENTIALS_DATA: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build container image'
+  args: [
+    'build',
+    '.',
+    '-t',
+    'europe-west1-docker.pkg.dev/$PROJECT_ID/docker/training_image',
+    '-f',
+    'dockerfiles/train.dockerfile'
+  ]
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push container image'
+  args: [
+    'push',
+    'europe-west1-docker.pkg.dev/$PROJECT_ID/docker/training_image'
+  ]
+options:
+  logging: CLOUD_LOGGING_ONLY
