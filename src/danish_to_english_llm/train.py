@@ -9,8 +9,8 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from transformers import T5TokenizerFast
 
-from .data import get_dataloaders
-from .model import T5LightningModel
+from danish_to_english_llm.data import get_dataloaders
+from danish_to_english_llm.model import T5LightningModel
 
 logger.add(
     "logs/data.log",

@@ -76,6 +76,8 @@ jobs:
           pip install coverage[toml]
           pip install -r requirements_dev.txt
           pip list
+      - name: Install project
+        run: pip install -e .
 
       - name: Run tests & coverage
         run: |
