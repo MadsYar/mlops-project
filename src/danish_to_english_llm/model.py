@@ -2,7 +2,15 @@ from typing import Dict, List, Optional
 
 import pytorch_lightning as pl
 import torch
+from loguru import logger
 from transformers import T5ForConditionalGeneration, T5TokenizerFast
+
+logger.add(
+    "logs/data.log",
+    rotation="100 MB",
+    level="INFO",
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} {level} [{file.name}:{line}] {message}",
+)
 
 
 class T5LightningModel(pl.LightningModule):
@@ -171,19 +179,20 @@ class T5LightningModel(pl.LightningModule):
 
 if __name__ == "__main__":
     # Example usage
+    logger.info("Initializing model")
     model = T5LightningModel()
 
     # If you have a trained model, load it:
     try:
         model.load_state_dict(torch.load("models/final_model.pth", weights_only=True))
         model.eval()  # Set to evaluation mode
-        print("Loaded trained model")
+        logger.success("Loaded trained model")
     except FileNotFoundError:
-        print("No trained model found. Using untrained model (won't give correct translations)")
+        logger.warning("No trained model found. Using untrained model (won't give correct translation)")
 
     #  Print model statistics and test translation
-    print(f"Number of parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
-    print("\nTesting translation:")
-    print("Input: Hej, hvordan har du det?")
-    print("Translation:", model.translate("Hej, hvordan har du det?"))
+    logger.info(f"Number of parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
+    logger.info("\nTesting translation: Hej, hvordan har du det?")
+    translation = model.translate("Hej, hvordan har du det?")
+    logger.success(f"Translation: {model.translate("Hej, hvordan har du det?")}")
     model.train()

@@ -183,3 +183,6 @@ data/
 /data
 
 cacert.pem
+
+logs/
+/logs

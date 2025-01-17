@@ -6,8 +6,16 @@ from typing import Dict, List, Tuple
 import torch
 import typer
 from datasets import load_dataset
+from loguru import logger
 from torch.utils.data import DataLoader, Dataset
 from transformers import T5TokenizerFast
+
+logger.add(
+    "logs/data.log",
+    rotation="100 MB",
+    level="INFO",
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} {level} [{file.name}:{line}] {message}",
+)
 
 
 class TranslationDataset(Dataset):
@@ -39,8 +47,10 @@ class TranslationDataset(Dataset):
                 ValueError: If mode is not one of 'train', 'val', or 'test'.
                 RuntimeError: If dataset initialization fails.
         """
+        logger.info(f"Initializing {mode} dataset")
 
         if mode not in ["train", "val", "test"]:
+            logger.error(f"Invalid mode: {mode}")
             raise ValueError("Invalid mode. Please choose from 'train', 'val', or 'test'.")
 
         self.mode = mode
@@ -61,10 +71,10 @@ class TranslationDataset(Dataset):
         try:
             # First check if processed data exists
             if any(self.processed_dir.glob("*.pt")):
-                print(f"Loading processed data for {mode} split...")
+                logger.info(f"Loading processed data for {mode} split...")
                 loaded_data = torch.load(self.processed_dir / f"{mode}.pt", weights_only=True)
                 self.data = loaded_data
-                print(f"Loaded {len(self.data)} examples for {mode} split")
+                logger.success(f"Loaded {len(self.data)} examples for {mode} split")
                 return
 
             # If no processed data, check raw data
@@ -73,23 +83,24 @@ class TranslationDataset(Dataset):
 
             # Download if necessary
             if only_gitkeep:
-                print("Raw directory empty. Downloading dataset...")
+                logger.info("Raw directory empty. Downloading dataset...")
                 self.dataset = self._download()
             else:
-                print("Loading existing raw data...")
+                logger.info("Loading existing raw data...")
                 self.dataset = load_dataset(str(self.raw_dir))
 
             # Preprocess
-            print("Starting preprocessing...")
+            logger.info("Starting preprocessing...")
             self._preprocess()
 
             # Load the processed data after preprocessing
-            print(f"Loading processed data for {mode} split...")
+            logger.info(f"Loading processed data for {mode} split...")
             loaded_data = torch.load(self.processed_dir / f"{mode}.pt", weights_only=True)
             self.data = loaded_data
-            print(f"Loaded {len(self.data)} examples for {mode} split")
+            logger.success(f"Loaded {len(self.data)} examples for {mode} split")
 
         except Exception as e:
+            logger.error(f"Error initializing dataset: {str(e)}")
             raise RuntimeError(f"Error initializing dataset: {str(e)}")
 
     def _download(self):
@@ -107,9 +118,10 @@ class TranslationDataset(Dataset):
         try:
             dataset = load_dataset("kaitchup/opus-Danish-to-English")
             dataset.save_to_disk(self.raw_dir)
-            print("Dataset downloaded successfully")
+            logger.success("Dataset downloaded successfully")
             return dataset
         except Exception as e:
+            logger.error(f"Failed to download dataset: {str(e)}")
             raise RuntimeError(f"Failed to download dataset: {str(e)}")
 
     def _preprocess(self) -> None:
@@ -121,9 +133,10 @@ class TranslationDataset(Dataset):
                 RuntimeError: If preprocessing fails
         """
 
-        print("Preprocessing dataset...")
+        logger.info("Preprocessing dataset...")
 
         if self.dataset is None:
+            logger.error("No dataset loaded. self.dataset is None.")
             raise ValueError("No dataset loaded. self.dataset is None.")
 
         try:
@@ -131,8 +144,8 @@ class TranslationDataset(Dataset):
             train_data = self._process_split(self.dataset["train"])
             val_data = self._process_split(self.dataset["validation"])
 
-            print(f"Processed {len(train_data)} training examples")
-            print(f"Processed {len(val_data)} validation examples")
+            logger.info(f"Processed {len(train_data)} training examples")
+            logger.info(f"Processed {len(val_data)} validation examples")
 
             # Create train/test split from training data
             random.shuffle(train_data)
@@ -145,11 +158,12 @@ class TranslationDataset(Dataset):
             torch.save(test_data, self.processed_dir / "test.pt")
             torch.save(val_data, self.processed_dir / "val.pt")
 
-            print(
+            logger.success(
                 f"Saved {len(final_train_data)} training, {len(test_data)} test, and {len(val_data)} validation examples"
             )
 
         except Exception as e:
+            logger.error(f"Error during preprocessing: {str(e)}")
             raise RuntimeError(f"Error during preprocessing: {str(e)}")
 
     def _process_split(self, split_data) -> List[Dict[str, str]]:
