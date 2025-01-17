@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ruff mypy
+          pip install -r requirements_dev.txt
           pip install -r requirements.txt
           pip list
 
@@ -36,7 +36,7 @@ jobs:
 
       - name: Mypy check
         continue-on-error: true  # Makes mypy checks optional
-        run: mypy .
+        run: mypy src/
 
   test:
     needs: format
@@ -74,6 +74,7 @@ jobs:
           python -m pip install -U pip setuptools wheel
           pip install -r requirements.txt
           pip install coverage[toml]
+          pip install -r requirements_dev.txt
           pip list
 
       - name: Run tests & coverage
