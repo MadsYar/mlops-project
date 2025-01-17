@@ -132,4 +132,4 @@ def train(config) -> None:
 
 
 if __name__ == "__main__":
-    typer.run(train)
+    train()
