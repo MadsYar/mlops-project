@@ -5,7 +5,7 @@ matplotlib==3.10.0
 omegaconf==2.3.0
 pytorch_lightning==2.5.0.post0
 torch==2.5.1
-transformers==4.47.1
+transformers==4.48.0
 typer==0.15.1
 fastapi
 uvicorn
