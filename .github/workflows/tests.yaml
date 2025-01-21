@@ -81,5 +81,25 @@ jobs:
 
       - name: Run tests & coverage
         run: |
-          coverage run --source=danish_to_english_llm -m pytest tests/
+          coverage run --source=danish_to_english_llm -m pytest tests/unit_tests/
           coverage report -m
+
+
+  build:
+    needs: test
+    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate with google cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build container image
+        run: gcloud builds submit --config cloudbuild_train.yaml

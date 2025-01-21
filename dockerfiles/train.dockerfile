@@ -11,6 +11,7 @@ COPY uv.lock uv.lock
 
 COPY src/ src/
 COPY models models/
+COPY configs/ configs/
 COPY requirements.txt requirements.txt
 COPY requirements_dev.txt requirements_dev.txt
 COPY pyproject.toml pyproject.toml
