@@ -176,6 +176,23 @@ class T5LightningModel(pl.LightningModule):
         # Decode and return
         return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+    def load_from_checkpoint(checkpoint_path: str) -> "T5LightningModel":
+        """
+        Load a model from a checkpoint.
+
+            Args:
+                checkpoint_path: Path to the checkpoint file.
+
+            Returns:
+                T5LightningModel: Loaded model.
+        """
+
+        # Load model and return
+        model = T5LightningModel()
+        model.load_state_dict(torch.load(checkpoint_path, map_location=model.device))
+        model.eval()
+        return model
+
 
 if __name__ == "__main__":
     # Example usage

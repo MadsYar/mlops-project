@@ -1,7 +1,8 @@
 import os
 import time
 
-from my_project.models import MyModel
+import torch
+from danish_to_english_llm.model import T5LightningModel
 
 import wandb
 
@@ -14,7 +15,7 @@ def load_model(artifact):
     artifact = api.artifact(model_checkpoint)
     artifact.download(root=logdir)
     file_name = artifact.files()[0].name
-    return MyModel.load_from_checkpoint(f"{logdir}/{file_name}")
+    return T5LightningModel.load_from_checkpoint(f"{logdir}/{file_name}")
 
 
 def test_model_speed():
