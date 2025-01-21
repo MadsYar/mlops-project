@@ -80,4 +80,4 @@ jobs:
 
     - name: Add production alias
       run: |
-        python link_model.py $MODEL_NAME -a production
+        python src/danish_to_english_llm/link_model.py $MODEL_NAME -a production
