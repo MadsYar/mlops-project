@@ -18,8 +18,8 @@ COPY pyproject.toml pyproject.toml
 
 # RUN uv sync --frozen
 ENV PATH="/app/.venv/bin:$PATH"
-RUN --mount=type=cache,target=/root/.cache pip install -r requirements.txt
-RUN --mount=type=cache,target=/root/.cache pip install -r requirements_dev.txt
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements_dev.txt
 RUN pip install --no-cache-dir -e .
 
 RUN dvc init --no-scm
