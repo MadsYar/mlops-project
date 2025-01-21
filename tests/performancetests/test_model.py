@@ -1,9 +1,8 @@
 import os
 import time
 
-from my_project.models import MyModel
-
 import wandb
+from my_project.models import MyModel
 
 
 def load_model(artifact):
