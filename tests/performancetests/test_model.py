@@ -2,9 +2,8 @@ import os
 import time
 
 import torch
-from danish_to_english_llm.model import T5LightningModel
-
 import wandb
+from danish_to_english_llm.model import T5LightningModel
 
 
 def load_model(artifact):
