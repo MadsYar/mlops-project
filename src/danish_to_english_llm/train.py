@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pytorch_lightning as pl
 import torch
 import typer
+import wandb
 from loguru import logger
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
@@ -46,6 +47,15 @@ def train(config) -> None:
         batch_size=config.experiment.training.batch_size,
         max_length=config.experiment.training.max_length,
         num_workers=config.experiment.training.num_workers,
+    )
+
+    run = wandb.init(
+        project="Danish-to-English",
+        config={
+            "lr": config.experiment.training.learning_rate,
+            "batch_size": config.experiment.training.batch_size,
+            "epochs": config.experiment.training.max_epochs,
+        },
     )
 
     # Initialize model
@@ -104,6 +114,12 @@ def train(config) -> None:
 
     # Save model
     torch.save(model.state_dict(), "models/final_model.pth")  # TODO: Find a better naming scheme?
+    artifact = wandb.Artifact(
+        name="Danish-to-English-model", type="model", description="A model trained to translate Danish to English"
+    )
+
+    artifact.add_file("models/final_model.pth")
+    run.log_artifact(artifact)
     logger.success("Model saved")
 
     # Get metrics and plot
