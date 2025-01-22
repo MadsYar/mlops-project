@@ -117,9 +117,12 @@ def test_get_dataloaders(mock_tokenizer, tmp_path):
 @patch("danish_to_english_llm.data.load_dataset")
 def test_process_split(mock_load_dataset, mock_tokenizer):
     """Test _process_split method."""
+
     mock_load_dataset.return_value = {
-        "train": [{"text": "dansk ###> english"}, {"text": "mere dansk ###> more english"}]
+        "train": [{"text": "dansk ###> english"}, {"text": "mere dansk ###> more english"}],
+        "validation": [{"text": "val dansk ###> val english"}],
     }
+
     dataset = TranslationDataset("train", mock_tokenizer)
     test_data = [{"text": "dansk ###> english"}, {"text": "mere dansk ###> more english"}]
 
@@ -139,9 +142,12 @@ def test_invalid_mode(invalid_mode, mock_tokenizer):
 @patch("danish_to_english_llm.data.load_dataset")
 def test_prepare_input(mock_load_dataset, mock_tokenizer):
     """Test _prepare_input method."""
+
     mock_load_dataset.return_value = {
-        "train": [{"text": "dansk ###> english"}, {"text": "mere dansk ###> more english"}]
+        "train": [{"text": "dansk ###> english"}, {"text": "mere dansk ###> more english"}],
+        "validation": [{"text": "val dansk ###> val english"}],
     }
+
     dataset = TranslationDataset("train", mock_tokenizer)
 
     # Mock tokenizer output for this specific test
