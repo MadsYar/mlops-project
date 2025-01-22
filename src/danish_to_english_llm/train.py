@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 import pytorch_lightning as pl
 import torch
 import typer
+import wandb
 from loguru import logger
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from transformers import T5TokenizerFast
 
-import wandb
 from danish_to_english_llm.data import get_dataloaders
 from danish_to_english_llm.model import T5LightningModel
 
