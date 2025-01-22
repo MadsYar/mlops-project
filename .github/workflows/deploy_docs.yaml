@@ -32,4 +32,6 @@ jobs:
           pip list
 
     - name: Deploy docs
-      run: mkdocs gh-deploy --force
+      run: |
+        export PYTHONPATH=$(pwd)/src
+        mkdocs gh-deploy --force
