@@ -39,7 +39,6 @@ def mock_dataset():
     return dataset
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_translation_dataset_initialization(mock_tokenizer, tmp_path):
     """Test successful initialization of dataset."""
     data_dir = tmp_path / "data"
@@ -54,22 +53,21 @@ def test_translation_dataset_initialization(mock_tokenizer, tmp_path):
     assert isinstance(dataset, TranslationDataset)
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
-def test_translation_dataset_download(mock_dataset, mock_tokenizer, tmp_path):
+@patch("danish_to_english_llm.data.load_dataset")
+def test_translation_dataset_download(mock_load_dataset, mock_dataset, mock_tokenizer, tmp_path):
     """Test dataset download functionality."""
+    mock_load_dataset.return_value = mock_dataset
+
     data_dir = tmp_path / "data"
     raw_dir = data_dir / "raw"
     raw_dir.mkdir(parents=True)
 
-    with patch("danish_to_english_llm.data.load_dataset") as mock_load_dataset:
-        mock_load_dataset.return_value = mock_dataset
-        dataset = TranslationDataset("train", mock_tokenizer, data_dir=str(data_dir))
+    dataset = TranslationDataset("train", mock_tokenizer, data_dir=str(data_dir))
 
-        assert mock_load_dataset.called
-        assert isinstance(dataset, TranslationDataset)
+    assert mock_load_dataset.called
+    assert isinstance(dataset, TranslationDataset)
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_translation_dataset_getitem(mock_tokenizer, tmp_path, sample_processed_data):
     """Test __getitem__ functionality."""
     data_dir = tmp_path / "data"
@@ -93,7 +91,6 @@ def test_translation_dataset_getitem(mock_tokenizer, tmp_path, sample_processed_
     assert all(k in item for k in ["input_ids", "attention_mask", "labels"])
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_get_dataloaders(mock_tokenizer, tmp_path):
     """Test dataloader creation."""
     data_dir = tmp_path / "data"
@@ -117,10 +114,16 @@ def test_get_dataloaders(mock_tokenizer, tmp_path):
         assert isinstance(test_loader, DataLoader)
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
-def test_process_split():
+@patch("danish_to_english_llm.data.load_dataset")
+def test_process_split(mock_load_dataset, mock_tokenizer):
     """Test _process_split method."""
-    dataset = TranslationDataset("train", Mock(spec=T5TokenizerFast))
+
+    mock_load_dataset.return_value = {
+        "train": [{"text": "dansk ###> english"}, {"text": "mere dansk ###> more english"}],
+        "validation": [{"text": "val dansk ###> val english"}],
+    }
+
+    dataset = TranslationDataset("train", mock_tokenizer)
     test_data = [{"text": "dansk ###> english"}, {"text": "mere dansk ###> more english"}]
 
     processed = dataset._process_split(test_data)
@@ -136,9 +139,15 @@ def test_invalid_mode(invalid_mode, mock_tokenizer):
         TranslationDataset(invalid_mode, mock_tokenizer)
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
-def test_prepare_input(mock_tokenizer):
+@patch("danish_to_english_llm.data.load_dataset")
+def test_prepare_input(mock_load_dataset, mock_tokenizer):
     """Test _prepare_input method."""
+
+    mock_load_dataset.return_value = {
+        "train": [{"text": "dansk ###> english"}, {"text": "mere dansk ###> more english"}],
+        "validation": [{"text": "val dansk ###> val english"}],
+    }
+
     dataset = TranslationDataset("train", mock_tokenizer)
 
     # Mock tokenizer output for this specific test
@@ -152,7 +161,6 @@ def test_prepare_input(mock_tokenizer):
     assert all(k in result for k in ["input_ids", "attention_mask", "labels"])
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_dataset_length(mock_tokenizer, tmp_path, sample_processed_data):
     """Test __len__ method."""
     data_dir = tmp_path / "data"
