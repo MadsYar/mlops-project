@@ -57,6 +57,14 @@ jobs:
           cache: 'pip'
           cache-dependency-path: setup.py
 
+      - name: Setup DVC
+        uses: iterative/setup-dvc@v1
+
+      - name: Pull DVC data
+        run: dvc pull
+        env:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
       - name: Cache dataset files
         uses: actions/cache@v4
         with:
