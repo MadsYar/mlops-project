@@ -21,3 +21,7 @@ plugins:
 
 nav:
   - Home: index.md
+  - Model: model.md
+  - Train: train.md
+  - Data: data.md
+  - API: api.md
