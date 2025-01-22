@@ -21,3 +21,7 @@ mypy==1.14.1
 
 # docker
 docker
+
+# profiling
+tensorboard
+torch-tb-profiler
