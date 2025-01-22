@@ -18,6 +18,12 @@ plugins:
             show_root_heading: true
             separate_signature: true
             show_signature_annotations: true
+            members_order: source
+            summary: true
 
 nav:
   - Home: index.md
+  - Model: model.md
+  - Train: train.md
+  - Data: data.md
+  #- API: api.md

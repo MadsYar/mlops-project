@@ -14,3 +14,4 @@ dvc-gs
 pyparsing
 cycler
 kiwisolver
+mkdocs-material >= 4.8.0
