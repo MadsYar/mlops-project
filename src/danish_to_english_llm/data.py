@@ -18,9 +18,6 @@ logger.add(
 )
 
 
-
-
-
 class TranslationDataset(Dataset):
     """
     This class handles the downloading, loading and preprocessing of Danish and English
