@@ -35,3 +35,4 @@ rich
 onnx
 onnxruntime
 onnxscript
+mkdocs-material >= 4.8.0
