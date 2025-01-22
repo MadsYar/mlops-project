@@ -35,3 +35,7 @@ jobs:
     - name: Pull data
       run: |
         dvc pull --no-run-cache
+
+    - name: Check dataset statistics
+      run: |
+        python src/danish_to_english_llm/visualize.py
