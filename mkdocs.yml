@@ -1,6 +1,6 @@
 site_name: danish_to_english_llm
 site_author: Group 26
-docs_dir: source
+docs_dir: docs/source
 
 theme:
   language: en
