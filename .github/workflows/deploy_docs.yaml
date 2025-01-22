@@ -31,6 +31,14 @@ jobs:
           pip install -r requirements.txt
           pip list
 
+    - name: Clean gh-pages
+      run: |
+        git fetch origin gh-pages || echo "No gh-pages branch yet"
+        git checkout gh-pages || git checkout --orphan gh-pages
+        git rm -rf .
+        git commit -m "Clean branch" || echo "Nothing to clean"
+        git push origin gh-pages --force
+
     - name: Deploy docs
       run: |
         export PYTHONPATH=$(pwd)/src
