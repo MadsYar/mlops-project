@@ -6,12 +6,11 @@ import onnx
 import onnxruntime as ort
 import torch
 import typer
+from data import get_dataloaders
 from model import T5LightningModel
 from torchmetrics.text import SacreBLEUScore
 from tqdm import tqdm
 from transformers import T5TokenizerFast
-
-from data import get_dataloaders
 
 app = typer.Typer()
 
