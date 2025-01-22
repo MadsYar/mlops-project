@@ -39,7 +39,7 @@ def mock_dataset():
     return dataset
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_translation_dataset_initialization(mock_tokenizer, tmp_path):
     """Test successful initialization of dataset."""
     data_dir = tmp_path / "data"
@@ -54,7 +54,7 @@ def test_translation_dataset_initialization(mock_tokenizer, tmp_path):
     assert isinstance(dataset, TranslationDataset)
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_translation_dataset_download(mock_dataset, mock_tokenizer, tmp_path):
     """Test dataset download functionality."""
     data_dir = tmp_path / "data"
@@ -69,7 +69,7 @@ def test_translation_dataset_download(mock_dataset, mock_tokenizer, tmp_path):
         assert isinstance(dataset, TranslationDataset)
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_translation_dataset_getitem(mock_tokenizer, tmp_path, sample_processed_data):
     """Test __getitem__ functionality."""
     data_dir = tmp_path / "data"
@@ -93,7 +93,7 @@ def test_translation_dataset_getitem(mock_tokenizer, tmp_path, sample_processed_
     assert all(k in item for k in ["input_ids", "attention_mask", "labels"])
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_get_dataloaders(mock_tokenizer, tmp_path):
     """Test dataloader creation."""
     data_dir = tmp_path / "data"
@@ -117,7 +117,7 @@ def test_get_dataloaders(mock_tokenizer, tmp_path):
         assert isinstance(test_loader, DataLoader)
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_process_split():
     """Test _process_split method."""
     dataset = TranslationDataset("train", Mock(spec=T5TokenizerFast))
@@ -136,7 +136,7 @@ def test_invalid_mode(invalid_mode, mock_tokenizer):
         TranslationDataset(invalid_mode, mock_tokenizer)
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_prepare_input(mock_tokenizer):
     """Test _prepare_input method."""
     dataset = TranslationDataset("train", mock_tokenizer)
@@ -152,7 +152,7 @@ def test_prepare_input(mock_tokenizer):
     assert all(k in result for k in ["input_ids", "attention_mask", "labels"])
 
 
-@pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data/raw"), reason="Data files not found")
 def test_dataset_length(mock_tokenizer, tmp_path, sample_processed_data):
     """Test __len__ method."""
     data_dir = tmp_path / "data"
